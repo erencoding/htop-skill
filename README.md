@@ -4,7 +4,7 @@ A comprehensive, agent-agnostic skill for the **htop** interactive process viewe
 
 It teaches any LLM-powered coding/devops agent how to install, operate, configure, and troubleshoot `htop(1)` across Linux, macOS, BSDs, and Solaris — covering invocation flags, the full set of interactive key bindings, the Setup screen, all 40+ process columns, config file conventions, permissions, and head-to-head comparison with `top` / `btop` / `atop` / `glances`.
 
-The format is a single `SKILL.md` with YAML frontmatter (Anthropic Skills convention) plus a `references/` folder. It loads cleanly into Hermes Agent, Claude Code, OpenClaw, Codex CLI, Cursor, Continue, or any plain LLM context window.
+The format is a single `SKILL.md` with YAML frontmatter (Anthropic Agent Skills convention) plus a `references/` folder. It loads cleanly into Claude Code, OpenCode, Codex, Cursor, Hermes Agent, OpenClaw, Continue, and 50+ other agents — or any plain LLM context window.
 
 ## What's Inside
 
@@ -31,57 +31,51 @@ The format is a single `SKILL.md` with YAML frontmatter (Anthropic Skills conven
 
 ## Install
 
-### Universal install (symlink one source into every agent)
-
-Clone once into a shared location, then symlink it to each agent's skill directory. This way every tool reads the same files — update once, take effect everywhere.
+The recommended way is the [Vercel Skills CLI](https://github.com/vercel-labs/skills) — one command, works for every supported agent, no per-tool config dance.
 
 ```bash
-# 1. Clone to a shared location
-mkdir -p ~/skills
-git clone https://github.com/erencoding/htop-skill.git ~/skills/htop
+# Install for the agent in the current project (auto-detected)
+npx skills add erencoding/htop-skill
 
-# 2. Symlink into the agents you use
-#    (run only the lines for tools you actually have)
+# Install globally for your user (recommended for system tools like htop)
+npx skills add erencoding/htop-skill -g
 
-# Hermes Agent
-mkdir -p ~/.hermes/skills
-ln -sfn ~/skills/htop ~/.hermes/skills/htop
+# Target a specific agent
+npx skills add erencoding/htop-skill -a claude-code
+npx skills add erencoding/htop-skill -a codex
+npx skills add erencoding/htop-skill -a opencode
+npx skills add erencoding/htop-skill -a cursor
 
-# Claude Code
-mkdir -p ~/.claude/skills
-ln -sfn ~/skills/htop ~/.claude/skills/htop
-
-# OpenClaw
-mkdir -p ~/.openclaw/skills
-ln -sfn ~/skills/htop ~/.openclaw/skills/htop
-
-# Codex CLI / generic AGENTS.md consumers — point your AGENTS.md at it
-echo '@~/skills/htop/SKILL.md' >> ~/.codex/AGENTS.md
+# Install to all agents present on your machine
+npx skills add erencoding/htop-skill --all -y
 ```
 
-### Per-agent shortcuts
+The CLI handles the directory layout for each agent automatically (Claude Code → `~/.claude/skills/`, Codex → `~/.codex/skills/`, OpenCode → `~/.config/opencode/skill/`, etc.), and by default symlinks so updates propagate.
 
-| Agent | One-liner |
-|---|---|
-| **Hermes Agent** | `hermes skills install --yes https://raw.githubusercontent.com/erencoding/htop-skill/main/SKILL.md` |
-| **Claude Code** | `git clone https://github.com/erencoding/htop-skill.git ~/.claude/skills/htop` |
-| **OpenClaw** | `git clone https://github.com/erencoding/htop-skill.git ~/.openclaw/skills/htop` |
-| **Codex CLI** | Append `@<path>/SKILL.md` to your project's `AGENTS.md` |
-| **Cursor** | Copy `SKILL.md` contents into `.cursor/rules/htop.mdc` |
-| **Continue** | Add `SKILL.md` to `~/.continue/rules/` |
-| **Any other LLM** | Paste `SKILL.md` into the system prompt or context window |
+### Hermes Agent
+
+```bash
+hermes skills install --yes https://github.com/erencoding/htop-skill
+```
+
+### Manual / Any Other Agent
+
+```bash
+git clone https://github.com/erencoding/htop-skill.git
+# Then point your agent at SKILL.md however it loads custom skills
+```
 
 ### Verify
 
 ```bash
+# Vercel Skills CLI installs
+npx skills list
+
 # Hermes
 hermes skills list | grep htop
 
-# Claude Code / OpenClaw
-ls -la ~/.claude/skills/htop ~/.openclaw/skills/htop 2>/dev/null
-
-# Generic
-test -f ~/skills/htop/SKILL.md && echo "OK"
+# Manual
+test -f /path/to/htop-skill/SKILL.md && echo "OK"
 ```
 
 ## Why "agent-agnostic"?
@@ -100,4 +94,4 @@ MIT for the skill content. The htop project itself is GPL-2.0-or-later and is **
 
 ## Author
 
-曹俊 (`erencoding`) — written with the Clawhauser Hermes persona, but designed to live anywhere an LLM agent can read Markdown.
+曹俊 (`erencoding`) — written with the Clawhauser Hermes persona, designed to live anywhere an LLM agent can read Markdown.
